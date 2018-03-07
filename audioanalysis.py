@@ -12,12 +12,14 @@ class AudioAnalysis:
 
         # make references for easier code reading
         self.chunk = self.ascape.chunk
+        self.buffer_size = self.ascape.buffer_size
         self.wf = self.ascape.wf
 
         self.bitdepth = self.ascape.bitdepth
         self.samplerate = self.ascape.samplerate
         self.max_frequency = self.ascape.max_frequency
         self.number_samples = self.ascape.number_samples
+        self.number_channels = self.ascape.number_channels
 
 
     def analyze(self):
@@ -28,28 +30,42 @@ class AudioAnalysis:
         print("Sample rate:", self.ascape.samplerate)
         print("Number of frames:", self.ascape.number_samples)
 
-        window = np.blackman(self.chunk)
-        data = self.wf.readframes(self.chunk)
+        window = np.hanning(self.chunk)
+        w_sum = np.sum(window)
+        w2_sum = np.sum(window**2)
+        enbw = self.samplerate * (w_sum / w2_sum**2)
+        unpacked = []
+        npunpacked = []
+        split_data = [None] * self.number_channels
 
         print("Analyzing...")
         t = time.time()
-        indata = []
+        data = self.wf.readframes(self.chunk)
+
+        # get frequencies sampled
+        self.ascape.freq = np.fft.rfftfreq(self.chunk, d=1. / self.samplerate)
 
         # read samples into 'data' buffer until you run out
-        #while (len(data) == self.chunk * self.bitdepth):
         for i in range(self.ascape.width):
-            # unpack data and multiply by window with numpy magic
-            indata = np.array(wave.struct.unpack("%dh" % (len(data)/self.bitdepth), data)) * window
+            # unpack data
+            #unpacked = np.array(wave.struct.unpack("%dh" % (len(data)/self.bitdepth), data))
+            unpacked = np.fromstring(data, self.ascape.dtype) # faster! :)
+            unpacked.shape = (self.chunk, self.number_channels)
+            unpacked = unpacked.T
 
-            # take fft, use "ortho" scaling, and square values
-            self.ascape.fourier[i] = 6*np.log2(np.abs(np.fft.rfft(indata)))
+            for c in range(self.number_channels):
+                # get a channel and multiply by window
+                #split_data[c] = unpacked[c::self.number_channels] * window
+                unpacked[c] = unpacked[c] * window
+
+                # take fft, use "ortho" scaling, and square values
+                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.5)
 
             # continue with more data
             data = self.wf.readframes(self.chunk)
 
-        print("Number of chunks:", len(self.ascape.fourier))
-
-        # get frequencies sampled
-        self.ascape.freq = np.fft.rfftfreq(len(indata), d=1. / self.samplerate)
+        t_delta = time.time() - t
+        self.ascape.max_amp = np.amax(self.ascape.fourier)
+        print("FFT took {} seconds".format(t_delta))
+        print("Number of chunks:", len(self.ascape.fourier[0]))
         print("Number of freqs:", len(self.ascape.freq))
-        print("FFT took {} seconds".format(time.time() - t))

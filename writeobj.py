@@ -37,5 +37,4 @@ class WriteOBJ:
             f.write(line)
 
         f.close()
-
         print("Wrote", filename, "in:", time.time()-t, "seconds.")

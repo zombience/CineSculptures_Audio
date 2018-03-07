@@ -12,59 +12,57 @@ class Spectro:
     def __init__(self, audioscapein):
 
         self.ascape = audioscapein
-        self.im = None
+        self.im = []
 
         self.freq = self.ascape.freq
-        self.amp = self.ascape.fourier
+        #self.amp = self.ascape.fourier
 
         self.max_amp = 100
         self.max_frequency = self.ascape.samplerate
-        self.fullsize = (len(self.ascape.fourier), len(self.ascape.freq))
 
         self.color = ""
 
-    def close(self, instance):
-        del self.im
-
-    def create_spectrogram(self, size="", color=False):
+    def create_spectrogram(self, color=False):
         self.color = color
-
         t = time.time()  # timestamp for image creation time
-        self.im = self.amp
 
-        if color:
-            self.im = (self.im - np.ones_like(self.im) * 120)
-            self.im *= (179 / -120.0)
+        for c in range(self.ascape.number_channels):
 
-            self.imval = np.ones_like(self.im) * 255
+            if color:
+                np.multiply(
+                    self.ascape.fourier[c], 360.0 / self.ascape.max_amp, out=self.ascape.fourier[c], casting='unsafe')
+                self.ascape.fourier[c] = (self.ascape.fourier[c] - 360)
+                self.ascape.fourier[c] *= -1
 
-            self.im = self.im.astype(np.uint8)
-            self.imval = self.imval.astype(np.uint8)
+                self.imval = np.ones_like(self.ascape.fourier[c]) * 255
 
-            self.im = cv.merge((self.im, self.imval, self.imval))
-            self.im = cv.cvtColor(self.im, cv.COLOR_HSV2BGR)
-        else:
-            self.im *= (200 / 120.0)
+                self.imval = self.imval.astype(np.uint8)
 
-        self.im = cv.rotate(self.im, cv.ROTATE_90_COUNTERCLOCKWISE)
+                self.im.append(cv.merge((self.ascape.fourier[c].astype(np.uint8), self.imval, self.imval)))
+                self.im[c] = cv.cvtColor(self.im[c], cv.COLOR_HSV2BGR, self.im[c])
+
+            else:
+                np.multiply(
+                    self.ascape.fourier[c], 255.0 / self.ascape.max_amp, out=self.ascape.fourier[c], casting='unsafe')
+                self.im.append(self.ascape.fourier[c].astype(np.uint8))
+
+                self.im[c] = np.rot90(self.im[c])
+
         print("Image creation took {} seconds".format(time.time() - t))
+        #self.ascape.dtype = np.uint8 # fft data has been mutated
 
-    def save_spectrogram(self):
+    def save_spectrogram(self, channel=0, id=""):
         # build filename
         if self.color:
             cmode = 'color'
         else:
             cmode = 'bw'
 
-        filename_out = self.ascape.filename_out + "_{}".format(cmode)
+        filename_out = self.ascape.filename_out + "_{}".format(cmode) + id
         filename_out += ".png"
 
-        if self.im.any:
-            cv.imwrite(filename_out, self.im.astype(int))
-            print("Wrote {}!".format(filename_out))
-        else:
-            print("No spectrogram has been created!")
+        cv.imwrite(filename_out, self.im[channel])
+        print("Wrote {}!".format(filename_out))
 
     def show(self):
         cv.imshow("Spectrogram", self.im)
-
