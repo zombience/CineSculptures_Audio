@@ -59,7 +59,7 @@ class AudioAnalysis:
                 unpacked[c] = unpacked[c] * window
 
                 # take fft, use "ortho" scaling, and square values
-                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.5)
+                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.31)
 
             # continue with more data
             data = self.wf.readframes(self.chunk)
