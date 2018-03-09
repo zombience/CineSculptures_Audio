@@ -18,7 +18,7 @@ def main():
     while (infile[-3:] != "wav"):
         infile = filedialog.askopenfilename()
 
-    chunk = 800 # three seconds is 3 * 44100, but it doesn't look good.
+    chunk = 1600 # three seconds is 3 * 44100, but it doesn't look good.
 
     # create AudioScape object
     ascape = audioscape.AudioScape(infile, chunk)
