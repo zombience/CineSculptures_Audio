@@ -13,11 +13,12 @@ def main():
     # setup dialog window
     root = tk.Tk()
     root.withdraw()
+    root.update()
 
     # get audio file
     while (infile[-3:] != "wav"):
         infile = filedialog.askopenfilename()
-    root.update()
+
     root.quit()
 
     chunk = 8000 # three seconds is 3 * 44100, but it doesn't look good.
