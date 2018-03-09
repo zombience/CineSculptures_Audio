@@ -31,12 +31,8 @@ class AudioAnalysis:
         print("Number of frames:", self.ascape.number_samples)
 
         window = np.hanning(self.chunk)
-        w_sum = np.sum(window)
-        w2_sum = np.sum(window**2)
-        enbw = self.samplerate * (w_sum / w2_sum**2)
+
         unpacked = []
-        npunpacked = []
-        split_data = [None] * self.number_channels
 
         print("Analyzing...")
         t = time.time()
@@ -48,18 +44,16 @@ class AudioAnalysis:
         # read samples into 'data' buffer until you run out
         for i in range(self.ascape.width):
             # unpack data
-            #unpacked = np.array(wave.struct.unpack("%dh" % (len(data)/self.bitdepth), data))
             unpacked = np.fromstring(data, self.ascape.dtype) # faster! :)
             unpacked.shape = (self.chunk, self.number_channels)
             unpacked = unpacked.T
 
             for c in range(self.number_channels):
                 # get a channel and multiply by window
-                #split_data[c] = unpacked[c::self.number_channels] * window
                 unpacked[c] = unpacked[c] * window
 
                 # take fft, use "ortho" scaling, and square values
-                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.5)
+                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.28)
 
             # continue with more data
             data = self.wf.readframes(self.chunk)

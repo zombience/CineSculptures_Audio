@@ -31,7 +31,7 @@ class Spectro:
             if color:
                 np.multiply(
                     self.ascape.fourier[c], 360.0 / self.ascape.max_amp, out=self.ascape.fourier[c], casting='unsafe')
-                self.ascape.fourier[c] = (self.ascape.fourier[c] - 360)
+                self.ascape.fourier[c] -= 360
                 self.ascape.fourier[c] *= -1
 
                 self.imval = np.ones_like(self.ascape.fourier[c]) * 255
@@ -49,7 +49,6 @@ class Spectro:
                 self.im[c] = np.rot90(self.im[c])
 
         print("Image creation took {} seconds".format(time.time() - t))
-        #self.ascape.dtype = np.uint8 # fft data has been mutated
 
     def save_spectrogram(self, channel=0, id=""):
         # build filename

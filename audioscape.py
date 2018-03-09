@@ -142,8 +142,11 @@ class AudioScape:
 
     def write_spectrogram(self, colorIn=False):
         self.auto_file_name()
-        self.spectrogram = spectro.Spectro(self)
-        self.spectrogram.create_spectrogram(color=colorIn)
+
+        if not self.spectrogram:
+            self.spectrogram = spectro.Spectro(self)
+            self.spectrogram.create_spectrogram(color=colorIn)
+
         for c in range(self.number_channels):
 
             if c == 0:
@@ -156,15 +159,18 @@ class AudioScape:
             self.spectrogram.save_spectrogram(channel=c, id=chn)
 
     def write_dualspectrogram(self, colorIn=False):
-        self.auto_file_name()
-        self.spectrogram = spectro.Spectro(self)
-        images = []
+        if self.number_channels != 2:
+            print("Not a stereo file. Image writing aborted.")
+            return
 
-        for c in range(self.number_channels):
+        self.auto_file_name()
+
+        if not self.spectrogram:
+            self.spectrogram = spectro.Spectro(self)
             self.spectrogram.create_spectrogram(color=colorIn)
-            images.append()
 
-        self.auto_file_name()
+        self.spectrogram.im[0] = np.vstack((self.spectrogram.im[0], np.flipud(self.spectrogram.im[1])))
+        self.spectrogram.save_spectrogram(channel=0, id="stereo")
 
     def auto_file_name(self):
         self.filename_out += "_{}".format(self.chunk)
