@@ -8,7 +8,7 @@ import audioscape
 def main():
 
     # set a default input file
-    infile = ""
+    infile = "Z:\Documents\Spectrumtests\mlb_stereo.wav"
 
     # setup dialog window
     root = tk.Tk()
@@ -21,7 +21,7 @@ def main():
 
     root.quit()
 
-    chunk = 8000 # three seconds is 3 * 44100, but it doesn't look good.
+    chunk = 4020 # three seconds is 3 * 44100, but it doesn't look good.
 
     # create AudioScape object
     ascape = audioscape.AudioScape(infile, chunk)

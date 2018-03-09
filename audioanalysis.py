@@ -52,8 +52,8 @@ class AudioAnalysis:
                 # get a channel and multiply by window
                 unpacked[c] = unpacked[c] * window
 
-                # take fft, use "ortho" scaling, and square values
-                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.25)
+                # take fft, get magnitudes, scale it by taking a root
+                self.ascape.fourier[c][i] = np.power(np.abs(np.fft.rfft(unpacked[c])), 0.2)
 
             # continue with more data
             data = self.wf.readframes(self.chunk)

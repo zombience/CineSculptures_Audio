@@ -35,13 +35,13 @@ class Spectro:
                 self.imval = self.imval.astype(np.uint8)
 
                 self.im.append(cv.merge((self.ascape.fourier[c].astype(np.uint8), self.imval, self.imval)))
-                self.im[c] = cv.cvtColor(self.im[c], cv.COLOR_HSV2BGR, self.im[c])
+                cv.cvtColor(self.im[c], cv.COLOR_HSV2BGR, dst=self.im[c])
 
             else:
                 np.multiply(
                     self.ascape.fourier[c], 255.0 / self.ascape.max_amp, out=self.ascape.fourier[c], casting='unsafe')
                 self.im.append(self.ascape.fourier[c].astype(np.uint8))
-
+                cv.normalize(self.im[c], self.im[c], -32, 255, norm_type=cv.NORM_MINMAX)
                 self.im[c] = np.rot90(self.im[c])
 
         print("Image creation took {} seconds".format(time.time() - t))
