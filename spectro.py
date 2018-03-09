@@ -15,10 +15,6 @@ class Spectro:
         self.im = []
 
         self.freq = self.ascape.freq
-        #self.amp = self.ascape.fourier
-
-        self.max_amp = 100
-        self.max_frequency = self.ascape.samplerate
 
         self.color = ""
 
