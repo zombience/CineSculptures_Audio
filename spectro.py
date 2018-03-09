@@ -41,7 +41,7 @@ class Spectro:
                 np.multiply(
                     self.ascape.fourier[c], 255.0 / self.ascape.max_amp, out=self.ascape.fourier[c], casting='unsafe')
                 self.im.append(self.ascape.fourier[c].astype(np.uint8))
-                cv.normalize(self.im[c], self.im[c], -32, 255, norm_type=cv.NORM_MINMAX)
+                cv.normalize(self.im[c], self.im[c], -32, 287, norm_type=cv.NORM_MINMAX)
                 self.im[c] = np.rot90(self.im[c])
 
         print("Image creation took {} seconds".format(time.time() - t))
