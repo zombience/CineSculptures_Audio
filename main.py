@@ -8,7 +8,7 @@ import audioscape
 def main():
 
     # set a default input file
-    infile = "Z:\Documents\Spectrumtests\mlb_stereo.wav"
+    infile = ""
 
     # setup dialog window
     root = tk.Tk()
