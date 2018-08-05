@@ -7,8 +7,9 @@ import audioscape
 import argparse
 
 def main(args):
-    print(args.file)
+    print('running main.py with args:', args)
     # set a default input file
+
     infile = args.file
 
     # setup dialog window
